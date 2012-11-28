@@ -22,6 +22,6 @@ setup(name='nose-mongorunner',
       zip_safe=True,
       entry_points="""\
       [nose.plugins.0.10]
-      mongodb = mongonose:MongoDBPlugin
+      mongodb = mongorunner:MongoDBPlugin
       """
       )
