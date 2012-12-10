@@ -226,7 +226,7 @@ class MongoRunner(object):
 
     def __init__(self, db_prefix='nosetests'):
         if 'TEST_MONGODB' not in os.environ:
-            raise RuntimeException('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
+            raise RuntimeError('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
         self._host, self._port = os.environ['TEST_MONGODB'].split(':')
         self._port = int(self._port)
         self.db_name = '{0}_{1}'.format(db_prefix, datetime.now().strftime('%s'))
@@ -251,7 +251,7 @@ class MultipleMongoRunner(object):
 
     def __init__(self, db_prefixes=['nosetests']):
         if 'TEST_MONGODB' not in os.environ:
-            raise RuntimeException('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
+            raise RuntimeError('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
         self._host, self._port = os.environ['TEST_MONGODB'].split(':')
         self._port = int(self._port)
 
