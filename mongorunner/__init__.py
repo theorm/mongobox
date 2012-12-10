@@ -239,3 +239,34 @@ class MongoRunner(object):
 
     def drop_database(self):
         self._db.connection.drop_database(self.db_name)
+
+
+class MultipleMongoRunner(object):
+    '''Helper class that creates a test database suffixed with seconds after epoch
+    to ensure uniquiness and shares a connection to it.
+
+    The difference from :class:`MongoRunner` is that you can specify several databases to be handled
+    by one object in a sandboxed mongo instance.
+    '''
+
+    def __init__(self, db_prefixes=['nosetests']):
+        if 'TEST_MONGODB' not in os.environ:
+            raise RuntimeException('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
+        self._host, self._port = os.environ['TEST_MONGODB'].split(':')
+        self._port = int(self._port)
+
+        self._connection = pymongo.Connection(self._host, self._port)
+
+        self.db_names = []
+        self._dbs = []
+        timestamp = datetime.now().strftime('%s')
+        for db_prefix in db_prefixes:
+            db_name = '{0}_{1}'.format(db_prefix, timestamp)
+            self.db_names.append(db_name) 
+
+    def db_connections(self):
+        return [self._connection[db_name] for db_name in self.db_names]
+
+    def drop_databases(self):
+        for db_name in self.db_names:
+            self._connection.drop_database(db_name)
