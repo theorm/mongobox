@@ -224,12 +224,17 @@ class MongoRunner(object):
     to ensure uniquiness and shares a connection to it.
     '''
 
-    def __init__(self, db_prefix='nosetests'):
+    def __init__(self, db_prefix='nosetests', use_timestamp_suffix=False):
         if 'TEST_MONGODB' not in os.environ:
             raise RuntimeError('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
         self._host, self._port = os.environ['TEST_MONGODB'].split(':')
         self._port = int(self._port)
-        self.db_name = '{0}_{1}'.format(db_prefix, datetime.now().strftime('%s'))
+
+        if use_timestamp_suffix:
+            db_suffix = datetime.now().strftime('%s')
+        else:
+            db_suffix = 'mongorunner'
+        self.db_name = '{0}_{1}'.format(db_prefix, db_suffix)
         
         conn = pymongo.Connection(self._host, self._port)
         self._db = conn[self.db_name]
@@ -249,7 +254,7 @@ class MultipleMongoRunner(object):
     by one object in a sandboxed mongo instance.
     '''
 
-    def __init__(self, db_prefixes=['nosetests']):
+    def __init__(self, db_prefixes=['nosetests'], use_timestamp_suffix=False):
         if 'TEST_MONGODB' not in os.environ:
             raise RuntimeError('You must run nose with --mongodb parameter to enable "mongonose" plugin. If you do not have it: $ pip install mongonose.')
         self._host, self._port = os.environ['TEST_MONGODB'].split(':')
@@ -259,9 +264,15 @@ class MultipleMongoRunner(object):
 
         self.db_names = []
         self._dbs = []
-        timestamp = datetime.now().strftime('%s')
+
+
+        if use_timestamp_suffix:
+            db_suffix = datetime.now().strftime('%s')
+        else:
+            db_suffix = 'mongorunner'
+
         for db_prefix in db_prefixes:
-            db_name = '{0}_{1}'.format(db_prefix, timestamp)
+            db_name = '{0}_{1}'.format(db_prefix, db_suffix)
             self.db_names.append(db_name) 
 
     def db_connections(self):
