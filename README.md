@@ -8,8 +8,9 @@ be as lightweight as possible. It will choose a free port on localhost,
 so it will not interfere with default MongoDB processes. 
 It is primarily expected to be used in unit tests and for prototyping concepts.
 
-A typical use of a Mongo Box::
+A typical use of a Mongo Box:
 
+```python
     import pymongo
     from mongobox import MongoBox
 
@@ -23,6 +24,7 @@ A typical use of a Mongo Box::
 
     box.stop()
     assert not client.alive()
+```
 
 Nose
 ----
@@ -32,7 +34,7 @@ If used as a plugin, port of the running instance will be exported
 in environment variable `MONGOBOX_PORT`. This name can be overridden
 in settings.
 
-The plugin exposes several configuration options. To see them, run::
+The plugin exposes several configuration options. To see them, run:
 
     nosetests --help
 
@@ -41,7 +43,7 @@ The options you are interested in start with `--mongobox-`.
 Installation
 ------------
 
-Get it from GitHub::
+Get it from GitHub:
     
     pip install https://github.com/theorm/mongobox
 
