@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-setup(name='nose-mongorunner',
+setup(name='mongobox',
       version="0.1.0",
       classifiers=[
         'Environment :: Plugins',
@@ -10,18 +10,19 @@ setup(name='nose-mongorunner',
         'Topic :: Internet :: WWW/HTTP'],
       author='Roman Kalyakin',
       author_email='roman@kalyakin.com',
-      description="Nose plugin for automating mongodb for tests runs.",
-      long_description=open("README.txt").read(),
-      url='http://pypi.python.org/pypi/mongonose',
-      license='BSD-derived',
+      description="Run sandboxed Mongo DB instance from a python app.",
+      long_description=open("README.md").read(),
+      url='http://github.com/theorm/mongobox',
+      license='BSD',
       packages=find_packages(exclude=('tests',)),
-      install_requires=["nose>=0.10","pymongo"],
+      install_requires=[],
       include_package_data=True,
-      tests_require=["nose"],
+      tests_require=["nose>=0.10","pymongo>=2.0"],
       test_suite = "nose.collector",
       zip_safe=True,
-      entry_points="""\
-      [nose.plugins.0.10]
-      mongodb = mongorunner:MongoDBPlugin
-      """
-      )
+      entry_points={
+        'nose.plugins.0.10': [
+            'mongobox = mongobox.nose_plugin:MongoBoxPlugin',
+        ],
+      }
+)
