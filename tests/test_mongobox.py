@@ -3,7 +3,6 @@ import unittest
 import os
 import tempfile
 import shutil
-from pymongo import MongoClient
 from mongobox import MongoBox
 from mongobox.nose_plugin import DEFAULT_PORT_ENVVAR
 
@@ -17,12 +16,12 @@ class TestMongoBox(unittest.TestCase):
         box = MongoBox()
         box.start()
 
+        db_path = box.db_path
+
         self.assertTrue(box.running())
         self.assertIsNotNone(box.port)
 
-        db_path = box.db_path
-
-        client = MongoClient(port=box.port)
+        client = box.client()
         self.assertTrue(client.alive())
 
         box.stop()

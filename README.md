@@ -11,13 +11,12 @@ It is primarily expected to be used in unit tests and for prototyping concepts.
 A typical use of a Mongo Box:
 
 ```python
-import pymongo
 from mongobox import MongoBox
 
 box = MongoBox()
 box.start()
 
-client = pymongo.MongoClient(port=box.port) 
+client = box.client() # pymongo client 
 assert client.alive()
 
 # do stuff with Mongo

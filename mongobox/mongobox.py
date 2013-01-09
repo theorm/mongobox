@@ -95,3 +95,8 @@ class MongoBox(object):
 
     def running(self):
         return self.process is not None
+
+    def client(self):
+        import pymongo
+        return pymongo.MongoClient(port=self.port)
+        
