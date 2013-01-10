@@ -44,7 +44,7 @@ Installation
 
 Get it from GitHub:
     
-    pip install https://github.com/theorm/mongobox
+    pip install https://github.com/theorm/mongobox.git
 
 
 Thanks
