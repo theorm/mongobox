@@ -7,6 +7,7 @@ import subprocess
 import time
 import sys
 import shutil
+import socket
 
 from .utils import find_executable, get_free_port
 
@@ -25,6 +26,7 @@ DEFAULT_ARGS = [
     "--nojournal",
 ]
 STARTUP_TIME = 0.4
+START_CHECK_ATTEMPTS = 200
 
 class MongoBox(object):
     def __init__(self, mongod_bin=None, port=None, 
@@ -47,6 +49,11 @@ class MongoBox(object):
         self.process = None
 
     def start(self):
+        '''Start MongoDB.
+
+        Returns `True` if instance has been started or 
+        `False` if it could not start.
+        '''
         if self.db_path:
             if not os.path.exists(self.db_path):
                 os.mkdir(self.db_path)
@@ -74,12 +81,14 @@ class MongoBox(object):
             stderr=subprocess.STDOUT
         )
 
-        time.sleep(STARTUP_TIME)
+        return self._wait_till_started()
 
     def stop(self):
         if not self.process:
             return
 
+        # Not sure if there should be more checks for
+        # other platforms.
         if sys.platform == 'darwin':
             self.process.kill()
         else:
@@ -98,5 +107,24 @@ class MongoBox(object):
 
     def client(self):
         import pymongo
-        return pymongo.MongoClient(port=self.port)
-        
+        try:
+            return pymongo.MongoClient(port=self.port) # version >=2.4
+        except AttributeError:
+            return pymongo.Connection(port=self.port)
+
+    def _wait_till_started(self):
+        attempts = 0
+        while self.process.poll() is None and attempts < START_CHECK_ATTEMPTS:
+            attempts += 1
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                try:
+                    s.connect(('localhost', int(self.port)))
+                    return True
+                except (IOError, socket.error):
+                    time.sleep(0.25)
+            finally:
+                s.close()
+
+        self.stop()
+        return False
