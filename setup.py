@@ -1,16 +1,22 @@
 from setuptools import setup, find_packages
 
+VERSION='0.1.0'
+
 setup(name='mongobox',
-      version="0.1.0",
+      version=VERSION,
       classifiers=[
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Plugins',
         'Intended Audience :: Developers',
-        'Programming Language :: Python',
+        'License :: OSI Approved :: Apache Software License',
         'Operating System :: OS Independent',
-        'Topic :: Internet :: WWW/HTTP'],
+        'Programming Language :: Python',
+        'Topic :: Database :: Database Engines/Servers',
+        'Topic :: Software Development :: Testing'
+      ],
       author='Roman Kalyakin',
       author_email='roman@kalyakin.com',
-      description="Run sandboxed Mongo DB instance from a python app.",
+      description="Run sandboxed Mongo DB instance from a python application.",
       long_description=open("README.md").read(),
       url='http://github.com/theorm/mongobox',
       license=open("LICENSE").read(),
