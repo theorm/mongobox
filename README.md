@@ -42,6 +42,10 @@ The options you are interested in start with `--mongobox-`.
 Installation
 ------------
 
+Get it from PyPi:
+
+    pip install mongobox
+
 Get it from GitHub:
     
     pip install https://github.com/theorm/mongobox.git
