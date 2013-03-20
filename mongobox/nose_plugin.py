@@ -55,6 +55,12 @@ class MongoBoxPlugin(Plugin):
             dest="port_envvar",
             default=DEFAULT_PORT_ENVVAR,
             help="Which environment variable dynamic port number will be exported to.")
+        parser.add_option(
+            "--mongobox-auth",
+            action="store",
+            dest="auth",
+            default=False,
+            help="Enable mongodb's user authentication mechanisms.")
 
 
     def configure(self, options, conf):
