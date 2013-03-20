@@ -5,7 +5,7 @@ import tempfile
 import shutil
 from mongobox import MongoBox
 from mongobox.nose_plugin import DEFAULT_PORT_ENVVAR
-
+from pymongo.errors import OperationFailure
 
 class TestMongoBox(unittest.TestCase):
 
@@ -39,3 +39,25 @@ class TestMongoBox(unittest.TestCase):
 
         self.assertTrue(os.path.exists(db_path))
         shutil.rmtree(db_path)
+
+    def test_auth(self):
+        box = MongoBox(auth=True)
+        box.start()
+        
+        client = box.client()
+        client['admin'].add_user('foo','bar')
+        self.assertRaises(OperationFailure, client['test'].add_user, 'test','test')
+        client['admin'].authenticate('foo', 'bar')
+        try:
+            client['test'].add_user('test','test')
+        except OperationFailure:
+            self.fail("add_user() operation unexpectedly failed")
+        
+        client = box.client()
+        self.assertRaises(OperationFailure, client['test'].collection_names)
+        client['admin'].authenticate('foo', 'bar')
+        try:
+            client['test'].collection_names()
+        except OperationFailure:
+            self.fail("collection_names() operation unexpectedly failed")
+        
