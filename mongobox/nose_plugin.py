@@ -66,6 +66,9 @@ class MongoBoxPlugin(Plugin):
     def configure(self, options, conf):
         super(MongoBoxPlugin, self).configure(options, conf)
 
+        if not self.enabled:
+            return
+
         self.mongobox = MongoBox(mongod_bin=options.bin, port=options.port or None,
                 log_path=options.logpath, db_path=options.dbpath, 
                 scripting=options.scripting, prealloc=options.prealloc)
