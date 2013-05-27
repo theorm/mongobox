@@ -7,6 +7,7 @@ from mongobox import MongoBox
 from mongobox.nose_plugin import DEFAULT_PORT_ENVVAR
 from pymongo.errors import OperationFailure
 
+
 class TestMongoBox(unittest.TestCase):
 
     def test_nose_plugin_exports_envvar(self):
@@ -25,7 +26,7 @@ class TestMongoBox(unittest.TestCase):
         self.assertTrue(client.alive())
 
         box.stop()
-        
+
         self.assertFalse(box.running())
         self.assertFalse(client.alive())
         self.assertFalse(os.path.exists(db_path))
@@ -43,16 +44,17 @@ class TestMongoBox(unittest.TestCase):
     def test_auth(self):
         box = MongoBox(auth=True)
         box.start()
-        
+
         client = box.client()
-        client['admin'].add_user('foo','bar')
-        self.assertRaises(OperationFailure, client['test'].add_user, 'test','test')
+        client['admin'].add_user('foo', 'bar')
+        self.assertRaises(OperationFailure, client['test'].add_user, 'test', 'test')
         client['admin'].authenticate('foo', 'bar')
+
         try:
-            client['test'].add_user('test','test')
+            client['test'].add_user('test', 'test')
         except OperationFailure:
             self.fail("add_user() operation unexpectedly failed")
-        
+
         client = box.client()
         self.assertRaises(OperationFailure, client['test'].collection_names)
         client['admin'].authenticate('foo', 'bar')
@@ -60,4 +62,3 @@ class TestMongoBox(unittest.TestCase):
             client['test'].collection_names()
         except OperationFailure:
             self.fail("collection_names() operation unexpectedly failed")
-        

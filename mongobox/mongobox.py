@@ -28,10 +28,11 @@ DEFAULT_ARGS = [
 STARTUP_TIME = 0.4
 START_CHECK_ATTEMPTS = 200
 
+
 class MongoBox(object):
-    def __init__(self, mongod_bin=None, port=None, 
-        log_path=None, db_path=None, scripting=False, 
-        prealloc=False, auth=False):
+    def __init__(self, mongod_bin=None, port=None,
+                 log_path=None, db_path=None, scripting=False,
+                 prealloc=False, auth=False):
 
         self.mongod_bin = mongod_bin or find_executable(MONGOD_BIN)
         assert self.mongod_bin, 'Could not find "{}" in system PATH. Make sure you have MongoDB installed.'.format(MONGOD_BIN)
@@ -52,7 +53,7 @@ class MongoBox(object):
     def start(self):
         '''Start MongoDB.
 
-        Returns `True` if instance has been started or 
+        Returns `True` if instance has been started or
         `False` if it could not start.
         '''
         if self.db_path:
@@ -72,7 +73,7 @@ class MongoBox(object):
 
         if self.auth:
             args.append("--auth")
-            
+
         if not self.scripting:
             args.append("--noscripting")
 

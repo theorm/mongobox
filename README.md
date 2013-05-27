@@ -39,6 +39,26 @@ The plugin exposes several configuration options. To see them, run:
 
 The options you are interested in start with `--mongobox-`.
 
+Unit tests
+----------
+
+For an easy unit tests integration there is a `MongoTestCase` class
+inherited from `unittest.TestCase`. It assumes tests are run from `nosetests`
+with `--with-mongobox` flag. `MongoTestCases` provides a `pymongo` client
+connected to the sandboxed mongo instance and a `purge_database` helper
+to clean up the database after every test:
+
+```python
+from mongobox.unittest import MongoTestCase
+
+class MyTest(MongoTestCase):
+    def setUp(self):
+        deploy_fixtures(self.mongo_client)
+
+    def tearDown(self):
+        self.purge_database()
+```
+
 Installation
 ------------
 
@@ -51,10 +71,6 @@ Get it from GitHub:
     pip install https://github.com/theorm/mongobox.git
 
 
-Thanks
-------
-
-MongoBox is based on `mongonose` nose plugin by Kapil Thangavelu.
 
 Authors
 =======
@@ -62,6 +78,12 @@ Authors
  Roman Kalyakin 
 
 
+Thanks
+------
+
+MongoBox is based on `mongonose` nose plugin by Kapil Thangavelu.
+
+For a list of contributors see `AUTHORS.md`.
 
 
 

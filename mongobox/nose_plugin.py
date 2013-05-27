@@ -5,6 +5,7 @@ import os
 
 DEFAULT_PORT_ENVVAR = 'MONGOBOX_PORT'
 
+
 class MongoBoxPlugin(Plugin):
     """A nose plugin that setups a sandboxed mongodb instance.
     """
@@ -69,15 +70,17 @@ class MongoBoxPlugin(Plugin):
         if not self.enabled:
             return
 
-        self.mongobox = MongoBox(mongod_bin=options.bin, port=options.port or None,
-                log_path=options.logpath, db_path=options.dbpath, 
-                scripting=options.scripting, prealloc=options.prealloc)
+        self.mongobox = MongoBox(
+            mongod_bin=options.bin, port=options.port or None,
+            log_path=options.logpath, db_path=options.dbpath,
+            scripting=options.scripting, prealloc=options.prealloc
+        )
 
         self.port_envvar = options.port_envvar
 
     def begin(self):
         assert self.port_envvar not in os.environ, '{} environment variable is already taken. Do you have other tests with mongobox running?'.format(self.port_envvar)
-        
+
         self.mongobox.start()
         os.environ[self.port_envvar] = str(self.mongobox.port)
 
