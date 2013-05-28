@@ -35,10 +35,11 @@ class MongoTestCase(TestCase):
 
         return self.__mongo_client
 
-    def purge_database(self):
+    def purge_database(self, drop=True):
         '''Drops all collections in all databases but system ones
-        (``system.*``) one by one.
-        It is faster than dropping databases directly.
+        (``system.*``) one by one if :param:`drop` is `True` (default),
+        otherwise removes documents using `remove` method.
+        Both seem to be faster than dropping databases directly.
 
         A typical use is call this method in :func:`unittest.TestCase.tearDown`
         to have a clean database for every test case method.
@@ -56,4 +57,7 @@ class MongoTestCase(TestCase):
                 if not c.startswith('system.')
             ]
             for collection in collections:
-                db.drop_collection(collection)
+                if drop:
+                    db.drop_collection(collection)
+                else:
+                    collection.remove(None)
