@@ -50,14 +50,30 @@ class MongoTestCase(TestCase):
             super(self, MyTestCase).tearDown()
             self.purge_database()
         '''
-        for db_name in self.mongo_client.database_names():
+
+        # exclude system databases
+        database_names = (
+            db_name for db_name in
+            self.mongo_client.database_names()
+            if db_name not in ['local']
+        )
+
+        for db_name in database_names:
             db = self.mongo_client[db_name]
-            collections = [
+
+            # exclude system collections
+            collections = (
                 db[c] for c in db.collection_names()
                 if not c.startswith('system.')
-            ]
+            )
             for collection in collections:
                 if drop:
                     db.drop_collection(collection)
                 else:
-                    collection.remove(None)
+                    try:
+                        collection.remove(None)
+                    except pymongo.errors.OperationFailure:
+                        if collection.options().get('capped', False):
+                            # cannot remove documents from capped collections
+                            # in latest version of Mongo. Dropping instead.
+                            db.drop_collection(collection)
