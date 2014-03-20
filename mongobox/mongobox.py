@@ -97,7 +97,7 @@ class MongoBox(object):
         if sys.platform == 'darwin':
             self.process.kill()
         else:
-            self.process.terminate()
+            os.kill(self.process.pid, 9)
         self.process.wait()
 
 
