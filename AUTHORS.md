@@ -9,3 +9,4 @@ Contributors
 ------------
  * Jay Luker (http://github.com/lbjay) <lbjay@reallywow.com>
  * Ziad Sawalha (http://github.com/ziadsawalha) 
+ * John Paul Hayes (https://github.com/johnpaulhayes)
