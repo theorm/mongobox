@@ -133,3 +133,10 @@ class MongoBox(object):
 
         self.stop()
         return False
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, *args, **kwargs):
+        self.stop()
