@@ -25,8 +25,8 @@ box.stop()
 assert not client.alive()
 ```
 
-Nose
-----
+Nose 1
+------
 
 Mongo Box comes with a Nose plugin which is automatically installed.
 If used as a plugin, port of the running instance will be exported
@@ -38,6 +38,33 @@ The plugin exposes several configuration options. To see them, run:
     nosetests --help
 
 The options you are interested in start with `--mongobox-`.
+
+Nose 2
+------
+
+`nose2.cfg` should look similar to this:
+
+```
+[unittest]
+plugins = mongobox.nose2_plugin
+
+[mongobox]
+always-on = True
+# Optionally specify the path to the mongod executable
+# bin =
+# Optionally specify the port to run mongodb on
+# port =
+# Optionally enable mongodb script engine
+# scripting = True
+# Path to database files directory. Creates temporary directory by default
+# dbpath =
+# Optionally store the mongodb log here (default is /dev/null)
+# logpath =
+# Optionally preallocate db files
+# prealloc = True
+# Which environment variable port number will be exported to
+port_envvar = MONGOBOX_PORT
+```
 
 Unit tests
 ----------
