@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
-from nose.plugins import Plugin
-from .mongobox import MongoBox
 import os
+
+from nose.plugins import Plugin
+
+from .mongobox import MongoBox
+
 
 DEFAULT_PORT_ENVVAR = 'MONGOBOX_PORT'
 
@@ -63,7 +66,6 @@ class MongoBoxPlugin(Plugin):
             default=False,
             help="Enable mongodb's user authentication mechanisms.")
 
-
     def configure(self, options, conf):
         super(MongoBoxPlugin, self).configure(options, conf)
 
@@ -79,7 +81,9 @@ class MongoBoxPlugin(Plugin):
         self.port_envvar = options.port_envvar
 
     def begin(self):
-        assert self.port_envvar not in os.environ, '{} environment variable is already taken. Do you have other tests with mongobox running?'.format(self.port_envvar)
+        assert self.port_envvar not in os.environ, (
+            '{} environment variable is already taken. '
+            'Do you have other tests with mongobox running?'.format(self.port_envvar))
 
         self.mongobox.start()
         os.environ[self.port_envvar] = str(self.mongobox.port)
