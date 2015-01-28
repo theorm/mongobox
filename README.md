@@ -44,12 +44,11 @@ Nose 2
 
 `nose2.cfg` should look similar to this:
 
-```
+```ini
 [unittest]
 plugins = mongobox.nose2_plugin
 
 [mongobox]
-always-on = True
 # Optionally specify the path to the mongod executable
 # bin =
 # Optionally specify the port to run mongodb on
@@ -111,6 +110,3 @@ Thanks
 MongoBox is based on `mongonose` nose plugin by Kapil Thangavelu.
 
 For a list of contributors see `AUTHORS.md`.
-
-
-
