@@ -17,6 +17,9 @@ nose2.cfg should contain:
     # logpath =
     # Optionally preallocate db files
     # prealloc = True
+    # Specify storage engine to use
+    # https://docs.mongodb.org/manual/release-notes/3.2-compatibility/#default-storage-engine-change
+    # storage_engine =
     # Which environment variable port number will be exported to
     port_envvar = MONGOBOX_PORT
 
@@ -49,6 +52,7 @@ class MongoBoxPlugin(nose2.events.Plugin):
             db_path=self.config.get('dbpath'),
             scripting=self.config.as_bool('scripting', False),
             prealloc=self.config.as_bool('prealloc', False),
+            storage_engine=self.config.get('storage_engine'),
         )
         self.port_envvar = self.config.get('port_envvar', DEFAULT_PORT_ENVVAR)
 

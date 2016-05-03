@@ -12,6 +12,10 @@ def find_executable(executable):
         if os.path.isfile(executable_path):
             return executable_path
 
+    raise AssertionError('Could not find "{}" in system PATH. Make sure you have it installed.'.format(
+        executable))
+
+
 def get_free_port(host="localhost"):
     """Get a free port on the machine.
     """

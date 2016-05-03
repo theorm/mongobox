@@ -65,6 +65,12 @@ class MongoBoxPlugin(Plugin):
             dest="auth",
             default=False,
             help="Enable mongodb's user authentication mechanisms.")
+        parser.add_option(
+            "--mongobox-storage-engine",
+            action="store",
+            dest="storage_engine",
+            default=None,
+            help=("Storage engine to use."))
 
     def configure(self, options, conf):
         super(MongoBoxPlugin, self).configure(options, conf)
@@ -75,7 +81,8 @@ class MongoBoxPlugin(Plugin):
         self.mongobox = MongoBox(
             mongod_bin=options.bin, port=options.port or None,
             log_path=options.logpath, db_path=options.dbpath,
-            scripting=options.scripting, prealloc=options.prealloc
+            scripting=options.scripting, prealloc=options.prealloc,
+            storage_engine=options.storage_engine,
         )
 
         self.port_envvar = options.port_envvar

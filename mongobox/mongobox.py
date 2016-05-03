@@ -11,6 +11,7 @@ import socket
 
 from .utils import find_executable, get_free_port
 
+
 MONGOD_BIN = 'mongod'
 DEFAULT_ARGS = [
     # don't flood stdout, we're not reading it
@@ -32,10 +33,9 @@ START_CHECK_ATTEMPTS = 200
 class MongoBox(object):
     def __init__(self, mongod_bin=None, port=None,
                  log_path=None, db_path=None, scripting=False,
-                 prealloc=False, auth=False):
+                 prealloc=False, auth=False, storage_engine=None):
 
         self.mongod_bin = mongod_bin or find_executable(MONGOD_BIN)
-        assert self.mongod_bin, 'Could not find "{}" in system PATH. Make sure you have MongoDB installed.'.format(MONGOD_BIN)
 
         self.port = port or get_free_port()
         self.log_path = log_path or os.devnull
@@ -43,6 +43,7 @@ class MongoBox(object):
         self.prealloc = prealloc
         self.db_path = db_path
         self.auth = auth
+        self.storage_engine = storage_engine
 
         if self.db_path:
             if os.path.exists(self.db_path) and os.path.isfile(self.db_path):
@@ -51,11 +52,11 @@ class MongoBox(object):
         self.process = None
 
     def start(self):
-        '''Start MongoDB.
+        """Start MongoDB.
 
         Returns `True` if instance has been started or
         `False` if it could not start.
-        '''
+        """
         if self.db_path:
             if not os.path.exists(self.db_path):
                 os.mkdir(self.db_path)
@@ -70,6 +71,9 @@ class MongoBox(object):
         args.extend(['--dbpath', self.db_path])
         args.extend(['--port', str(self.port)])
         args.extend(['--logpath', self.log_path])
+
+        if self.storage_engine:
+            args.extend(['--storageEngine', self.storage_engine])
 
         if self.auth:
             args.append("--auth")
@@ -100,7 +104,6 @@ class MongoBox(object):
             os.kill(self.process.pid, 9)
         self.process.wait()
 
-
         if self._db_path_is_temporary:
             shutil.rmtree(self.db_path)
             self.db_path = None
@@ -113,7 +116,7 @@ class MongoBox(object):
     def client(self):
         import pymongo
         try:
-            return pymongo.MongoClient(port=self.port) # version >=2.4
+            return pymongo.MongoClient(port=self.port)  # version >=2.4
         except AttributeError:
             return pymongo.Connection(port=self.port)
 
