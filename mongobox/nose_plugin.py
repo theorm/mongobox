@@ -42,12 +42,6 @@ class MongoBoxPlugin(Plugin):
             default=None,
             help=("Path to database files directory. Creates temporary directory by default."))
         parser.add_option(
-            "--mongobox-logpath",
-            action="store",
-            dest="logpath",
-            default=None,
-            help=("Optionally store the mongodb log here (default is /dev/null)"))
-        parser.add_option(
             "--mongobox-prealloc",
             action="store_true",
             dest="prealloc",
@@ -80,7 +74,7 @@ class MongoBoxPlugin(Plugin):
 
         self.mongobox = MongoBox(
             mongod_bin=options.bin, port=options.port or None,
-            log_path=options.logpath, db_path=options.dbpath,
+            db_path=options.dbpath,
             scripting=options.scripting, prealloc=options.prealloc,
             storage_engine=options.storage_engine,
         )

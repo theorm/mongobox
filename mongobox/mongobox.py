@@ -2,7 +2,6 @@
 
 import os
 import tempfile
-import copy
 import subprocess
 import time
 import sys
@@ -32,44 +31,38 @@ START_CHECK_ATTEMPTS = 200
 
 class MongoBox(object):
     def __init__(self, mongod_bin=None, port=None,
-                 log_path=None, db_path=None, scripting=False,
+                 db_path=None, scripting=False,
                  prealloc=False, auth=False, storage_engine=None):
+
+        if db_path and os.path.exists(db_path) and os.path.isfile(db_path):
+            raise AssertionError('DB path should be a directory, but it is a file.')
 
         self.mongod_bin = mongod_bin or find_executable(MONGOD_BIN)
 
         self.port = port or get_free_port()
-        self.log_path = log_path or os.devnull
         self.scripting = scripting
         self.prealloc = prealloc
         self.db_path = db_path
+        self._db_path_is_temporary = not self.db_path
         self.auth = auth
         self.storage_engine = storage_engine
-
-        if self.db_path:
-            if os.path.exists(self.db_path) and os.path.isfile(self.db_path):
-                raise AssertionError('DB path should be a directory, but it is a file.')
 
         self.process = None
 
     def start(self):
         """Start MongoDB.
-
-        Returns `True` if instance has been started or
-        `False` if it could not start.
         """
-        if self.db_path:
-            if not os.path.exists(self.db_path):
-                os.mkdir(self.db_path)
-            self._db_path_is_temporary = False
-        else:
+        if self._db_path_is_temporary:
             self.db_path = tempfile.mkdtemp()
-            self._db_path_is_temporary = True
+        elif not os.path.exists(self.db_path):
+            os.mkdir(self.db_path)
 
-        args = copy.copy(DEFAULT_ARGS)
-        args.insert(0, self.mongod_bin)
+        args = [self.mongod_bin] + list(DEFAULT_ARGS)
 
         args.extend(['--dbpath', self.db_path])
         args.extend(['--port', str(self.port)])
+
+        self.log_path = os.path.join(self.db_path, 'mongodb.log')
         args.extend(['--logpath', self.log_path])
 
         if self.storage_engine:
@@ -84,16 +77,36 @@ class MongoBox(object):
         if not self.prealloc:
             args.append("--noprealloc")
 
-        self.process = subprocess.Popen(
-            args,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT
-        )
+        self.process_args = args
+        self.process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-        return self._wait_till_started()
+        self._wait_till_started()
+
+    def _wait_till_started(self):
+        attempts = 0
+        while True:
+            if self.process.poll() is not None:  # the process has terminated
+                with open(self.log_path) as log_file:
+                    raise SystemExit('MondgoDB failed to start:\n{}\n{}'.format(
+                        ' '.join(self.process_args), log_file.read()))
+            attempts += 1
+            if attempts > START_CHECK_ATTEMPTS:
+                break
+            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                try:
+                    s.connect(('localhost', int(self.port)))
+                    return
+                except (IOError, socket.error):
+                    time.sleep(0.25)
+            finally:
+                s.close()
+
+        # MongoDB still does not accept connections. Killing it.
+        self.stop()
 
     def stop(self):
-        if not self.process:
+        if not self.process or self.process.poll() is not None:
             return
 
         # Not sure if there should be more checks for
@@ -119,23 +132,6 @@ class MongoBox(object):
             return pymongo.MongoClient(port=self.port)  # version >=2.4
         except AttributeError:
             return pymongo.Connection(port=self.port)
-
-    def _wait_till_started(self):
-        attempts = 0
-        while self.process.poll() is None and attempts < START_CHECK_ATTEMPTS:
-            attempts += 1
-            s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            try:
-                try:
-                    s.connect(('localhost', int(self.port)))
-                    return True
-                except (IOError, socket.error):
-                    time.sleep(0.25)
-            finally:
-                s.close()
-
-        self.stop()
-        return False
 
     def __enter__(self):
         self.start()

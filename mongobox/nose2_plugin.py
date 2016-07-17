@@ -48,7 +48,6 @@ class MongoBoxPlugin(nose2.events.Plugin):
         self.mongobox = MongoBox(
             mongod_bin=self.config.get('bin'),
             port=self.config.as_int('port'),
-            log_path=self.config.get('logpath'),
             db_path=self.config.get('dbpath'),
             scripting=self.config.as_bool('scripting', False),
             prealloc=self.config.as_bool('prealloc', False),
