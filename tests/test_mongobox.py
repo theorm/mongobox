@@ -5,7 +5,7 @@ import tempfile
 import shutil
 from mongobox import MongoBox
 from mongobox.nose_plugin import DEFAULT_PORT_ENVVAR
-from pymongo.errors import OperationFailure
+from pymongo.errors import OperationFailure, AutoReconnect
 
 
 class TestMongoBox(unittest.TestCase):
@@ -23,13 +23,18 @@ class TestMongoBox(unittest.TestCase):
         self.assertIsNotNone(box.port)
 
         client = box.client()
-        self.assertTrue(client.alive())
+        try:
+            client.list_databases()
+        except:
+            self.fail('Cannot list databases')
 
         box.stop()
 
         self.assertFalse(box.running())
-        self.assertFalse(client.alive())
         self.assertFalse(os.path.exists(db_path))
+
+        with self.assertRaises(AutoReconnect):
+            client.list_databases()
 
 
     def test_keep_db_path(self):
@@ -46,14 +51,15 @@ class TestMongoBox(unittest.TestCase):
         box.start()
 
         client = box.client()
-        client['admin'].add_user('foo', 'bar')
-        self.assertRaises(OperationFailure, client['test'].add_user, 'test', 'test')
+        client['admin'].command('createUser', 'foo', pwd='bar', roles=['root'])
+        with self.assertRaises(OperationFailure):
+            client['test'].command('createUser', 'test', pwd='test', roles=[])
         client['admin'].authenticate('foo', 'bar')
 
         try:
-            client['test'].add_user('test', 'test')
+            client['test'].command('createUser', 'test', pwd='test', roles=[])
         except OperationFailure:
-            self.fail("add_user() operation unexpectedly failed")
+            self.fail("createUser() operation unexpectedly failed")
 
         client = box.client()
         self.assertRaises(OperationFailure, client['test'].collection_names)
@@ -62,3 +68,5 @@ class TestMongoBox(unittest.TestCase):
             client['test'].collection_names()
         except OperationFailure:
             self.fail("collection_names() operation unexpectedly failed")
+
+        box.stop()

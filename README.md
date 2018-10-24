@@ -17,12 +17,15 @@ box = MongoBox()
 box.start()
 
 client = box.client() # pymongo client 
-assert client.alive()
+print(client.server_info())
 
 # do stuff with Mongo
 
 box.stop()
-assert not client.alive()
+try:
+    client.server_info()
+except:
+    print('Mongo instance is stopped')
 ```
 
 Nose 1

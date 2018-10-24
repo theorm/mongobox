@@ -10,13 +10,12 @@ import socket
 
 from .utils import find_executable, get_free_port
 
+is_windows = lambda: sys.platform.startswith("win")
 
-MONGOD_BIN = 'mongod'
+MONGOD_BIN = 'mongod.exe' if is_windows() else 'mongod'
 DEFAULT_ARGS = [
     # don't flood stdout, we're not reading it
     "--quiet",
-    # save the port
-    "--nohttpinterface",
     # disable unused.
     "--nounixsocket",
     # use a smaller default file size
@@ -78,7 +77,9 @@ class MongoBox(object):
             args.append("--noprealloc")
 
         self.process_args = args
-        self.process = subprocess.Popen(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        self.fnull = open(os.devnull, 'w')
+        self.process = subprocess.Popen(args, stdout=self.fnull, stderr=subprocess.STDOUT)
 
         self._wait_till_started()
 
@@ -106,13 +107,16 @@ class MongoBox(object):
         self.stop()
 
     def stop(self):
-        if not self.process or self.process.poll() is not None:
+        if self.process is None or self.process.poll() is not None:
+            # the process does not exist anymore
             return
-
+        
         # Not sure if there should be more checks for
         # other platforms.
         if sys.platform == 'darwin':
             self.process.kill()
+        elif is_windows():
+            self.process.terminate()
         else:
             os.kill(self.process.pid, 9)
         self.process.wait()
@@ -122,6 +126,8 @@ class MongoBox(object):
             self.db_path = None
 
         self.process = None
+        self.fnull.close()
+        self.fnull = None
 
     def running(self):
         return self.process is not None

@@ -12,3 +12,4 @@ Contributors
  * John Paul Hayes (https://github.com/johnpaulhayes)
  * mefyl (https://github.com/mefyl)
  * Victor Varvaryuk (https://github.com/warvariuc)
+ * Heikki Mikkolainen (https://github.com/jundi)
