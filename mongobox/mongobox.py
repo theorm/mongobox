@@ -24,6 +24,10 @@ DEFAULT_ARGS = [
     # for tests, can causes failures in jenkins
     "--nojournal",
 ]
+
+if is_windows():
+	DEFAULT_ARGS.remove('--nounixsocket')
+
 STARTUP_TIME = 0.4
 START_CHECK_ATTEMPTS = 200
 
